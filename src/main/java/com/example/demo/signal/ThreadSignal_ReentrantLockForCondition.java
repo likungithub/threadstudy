@@ -18,6 +18,23 @@ public class ThreadSignal_ReentrantLockForCondition {
         Condition conditionT2 = lock.newCondition();
 
         new Thread(() -> {
+            try {
+                lock.lock();
+                for (char c : charsB) {
+                    System.out.print(c);
+                    conditionT1.signal();
+                    conditionT2.await();
+                }
+                conditionT1.signal();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                lock.unlock();
+            }
+
+        }, "t2").start();
+
+        new Thread(() -> {
 
             try {
                 lock.lock();
@@ -34,24 +51,7 @@ public class ThreadSignal_ReentrantLockForCondition {
             }
         }, "t1").start();
 
-        new Thread(() -> {
-            try {
-                lock.lock();
-                for (char c : charsB) {
-                    System.out.print(c);
-                    conditionT1.signal();
-                    conditionT2.await();
 
-
-                }
-                conditionT1.signal();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                lock.unlock();
-            }
-
-        }, "t2").start();
 
     }
 
